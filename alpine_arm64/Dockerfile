@@ -3,15 +3,19 @@ FROM alpine:edge AS builder
 LABEL maintainer="Alan Ho <github.com/indefinite-future>"
 
 RUN \
-    echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
+    echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
+    echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \ 
     echo 'root:Docker!' | passwd -d root && \
     apk update --no-cache && \
     apk add --no-cache \
     tzdata \
     curl \
+    eudev \
+    alpine-conf \
     wget \
     unzip \
     sddm \
+    dbus \
     htop \
     bash \
     flatpak \
@@ -28,12 +32,12 @@ RUN \
     elogind \
     polkit-elogind \
     plasma-desktop \
-    plasma-workspace \
     kwin \
     git \
     xvfb \
     xvfb-run \
     x11vnc \
+    xinit \
     lxterminal
 
 RUN git clone --depth=1 --recursive https://github.com/novnc/noVNC /novnc
@@ -56,13 +60,5 @@ ENV HOME=/root \
 CMD nohup xvfb-run -f ~/.Xauthority --server-args="-screen 0 1440x900x24" plasma_session & \
     nohup x11vnc -norc -forever -shared -display :99 & \
     nohup /novnc/utils/novnc_proxy --vnc 0.0.0.0:5900 --listen 80 \
-    flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo \
-    rc-update add dbus \
-    rc-update add elogind \
-    rc-update add polkit \
-    rc-update add sddm \
-    rc-service sddm start
-
-
-
+    flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
